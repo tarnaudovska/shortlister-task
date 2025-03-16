@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use App\Models\User;
 
@@ -21,16 +21,25 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-            $user = new User;
+        $request->validate([
+            'name' => 'required|max:50',
+            'email' => 'unique:users|email:rfc,dns',
+            'date_of_birth' => [
+                'required',
+                Rule::date()->beforeToday(),
+            ],
+        ]);
 
-            $user->name = $request->name;
-            $user->email = $request->email;
-            $user->phone = $request->phone;
-            $user->date_of_birth = $request->date_of_birth;
+        $user = new User;
 
-            $user->save();
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->phone = $request->phone;
+        $user->date_of_birth = $request->date_of_birth;
 
-            return redirect()->route('users.index');
+        $user->save();
+
+        return redirect()->route('users.index');
     }
 
 }
